@@ -1,9 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 
-interface IColumn extends Document {
+export interface IColumn extends Document {
   columnName: string;
   columnType: "Text" | "Date";
-  isDynamic: boolean;
+  isDynamic: boolean; // isDynamic means -> isDynamic ? column is added when table is created : column is added in table view dashboard
   rows: { value: string | Date; createdAt: Date }[];
   tableId: Schema.Types.ObjectId;
 }
@@ -16,30 +16,27 @@ const rowSchema = new Schema(
   { _id: false }
 );
 
-const columnSchema = new Schema<IColumn>(
-  {
-    columnName: {
-      type: String,
-      required: [true, "Column name is required"],
-    },
-    columnType: {
-      type: String,
-      enum: ["Text", "Date"],
-      default: "Text",
-    },
-    isDynamic: {
-      type: Boolean,
-      default: false,
-    },
-    tableId: {
-      type: Schema.Types.ObjectId,
-      ref: "Table",
-      required: true,
-    },
-    rows: [rowSchema],
+const columnSchema = new Schema<IColumn>({
+  columnName: {
+    type: String,
+    required: [true, "Column name is required"],
   },
-  { timestamps: true }
-);
+  columnType: {
+    type: String,
+    enum: ["Text", "Date"],
+    default: "Text",
+  },
+  isDynamic: {
+    type: Boolean,
+    default: false,
+  },
+  tableId: {
+    type: Schema.Types.ObjectId,
+    ref: "Table",
+    required: true,
+  },
+  rows: [rowSchema],
+});
 
 const Column =
   mongoose.models.Column || mongoose.model<IColumn>("Column", columnSchema);

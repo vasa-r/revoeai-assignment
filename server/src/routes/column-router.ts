@@ -4,13 +4,14 @@ import {
   deleteColumn,
   updateColumn,
 } from "../controllers/column-controller";
+import { validateNewColumn } from "../middleware/validate-column";
 
 const columnRouter = Router();
 
-columnRouter.post("/", createColumn);
+columnRouter.post("/", validateNewColumn, createColumn);
 
 columnRouter.put("/", updateColumn);
 
-columnRouter.delete("/:tableId", deleteColumn);
+columnRouter.delete("/:columnId", deleteColumn);
 
 export default columnRouter;

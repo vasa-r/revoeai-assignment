@@ -2,6 +2,9 @@ import express, { Application } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDb from "./config/connect-db";
+import userRouter from "./routes/user-router";
+import tableRouter from "./routes/table-router";
+import columnRouter from "./routes/column-router";
 import errorHandler from "./middleware/error-handler";
 
 dotenv.config();
@@ -18,6 +21,10 @@ app.get("/", (_, res) => {
     message: "API is up and running",
   });
 });
+
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/table", tableRouter);
+app.use("/api/v1/column", columnRouter);
 
 app.use("*", (_, res) => {
   res.status(404).json({

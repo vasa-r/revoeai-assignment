@@ -37,3 +37,8 @@ export enum statusCode {
 export interface CustomError extends Error {
   status?: number;
 }
+
+export interface tableUpdateData {
+  tableName: string;
+  googleSheetId: string;
+}

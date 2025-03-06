@@ -4,12 +4,16 @@ import {
   deleteTable,
   updateTable,
 } from "../controllers/table-controller";
+import {
+  validateNewTable,
+  validateTableUpdate,
+} from "../middleware/validate-table";
 
 const tableRouter = Router();
 
-tableRouter.post("/", createTable);
+tableRouter.post("/", validateNewTable, createTable);
 
-tableRouter.put("/", updateTable);
+tableRouter.put("/", validateTableUpdate, updateTable);
 
 tableRouter.delete("/:tableId", deleteTable);
 
