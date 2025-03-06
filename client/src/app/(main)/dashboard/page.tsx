@@ -1,3 +1,4 @@
+import AddTableModal from "@/components/add-table";
 import { Search } from "lucide-react";
 
 export default function Page() {
@@ -25,9 +26,7 @@ export default function Page() {
         </div>
       </div>
       <div className="border border-border p-1 px-3 md:p-2 md:px-5 md:pl-1.5 rounded-md flex items-center">
-        <button className="cursor-pointer text-stat-white bg-violet-600 rounded-sm text-base md:text-lg font-medium px-1 py-1 md:px-2">
-          Add Table
-        </button>
+        <AddTableModal triggerLabel="Add Table" />
         <input
           type="text"
           className="flex-1 text-lg font-medium outline-none ml-1.5 md:ml-3 border-b border-border px-1 py-1 md:px-2"
