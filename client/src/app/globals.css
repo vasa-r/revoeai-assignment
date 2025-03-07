@@ -139,3 +139,7 @@
 .center {
   @apply flex items-center justify-center;
 }
+
+.error {
+  @apply text-red-500 text-xs;
+}

@@ -12,15 +12,15 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "bg-destructive text-white shadow-xs hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background  hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         custom:
-          "cursor-pointer text-stat-white bg-violet-600 rounded-sm font-medium px-1 py-1 md:px-2",
+          "cursor-pointer text-white bg-violet-600 transition-colors duration-300 hover:bg-violet-700 rounded-sm font-medium px-1 py-1 md:px-2",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -31,6 +31,7 @@ const buttonVariants = cva(
       },
       text: {
         sm: "text-base md:text-[17px]",
+        dialog: "text-base",
       },
     },
     defaultVariants: {

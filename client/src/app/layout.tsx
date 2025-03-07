@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins, Merienda } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "@/context/auth-context";
 
 const poppinsFont = Poppins({
   variable: "--font-poppins",
@@ -42,7 +44,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>{children}</AuthProvider>
+          <Toaster position="top-right" />
         </ThemeProvider>
       </body>
     </html>
