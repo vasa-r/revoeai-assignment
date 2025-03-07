@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, Bot, SquareTerminal } from "lucide-react";
+import { BookOpen, LayoutDashboard, Table } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -19,14 +19,14 @@ const data = {
   navMain: [
     {
       title: "Home",
-      url: "#",
-      icon: SquareTerminal,
+      url: "/dashboard",
+      icon: LayoutDashboard,
       isActive: true,
     },
     {
       title: "Tables",
-      url: "#",
-      icon: Bot,
+      url: "/tables",
+      icon: Table,
     },
     {
       title: "Documentation",

@@ -1,6 +1,6 @@
 const validateTable = (
   tableName: string,
-  columns: { name: string; type: string }[]
+  columns: { columnName: string; columnType: string }[]
 ) => {
   const errors: { tableName?: string; columns?: string[] } = { columns: [] };
 
@@ -9,7 +9,7 @@ const validateTable = (
   }
 
   columns.forEach((col, index) => {
-    if (!col.name.trim()) {
+    if (!col.columnName.trim()) {
       errors.columns![index] = "Column name is required.";
     } else {
       errors.columns![index] = "";
