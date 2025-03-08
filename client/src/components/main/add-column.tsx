@@ -24,10 +24,16 @@ import {
 } from "../ui/select";
 import { BadgeInfo } from "lucide-react";
 import TooltipWrapper from "../tooltip-wrapper";
+import { createColumn } from "@/api/column";
+import toast from "react-hot-toast";
+import BtnLoader from "../loader";
+import { TableData } from "@/types/types";
+import { useState } from "react";
 
 interface AddColumnProps {
   triggerLabel: React.ReactNode | string;
   tableId: string;
+  setTable: React.Dispatch<React.SetStateAction<TableData | null>>;
 }
 
 // Schema for validation
@@ -36,24 +42,57 @@ const columnSchema = z.object({
   columnType: z.enum(["Text", "Date"]),
 });
 
-export function AddColumn({ triggerLabel, tableId }: AddColumnProps) {
+export function AddColumn({ triggerLabel, tableId, setTable }: AddColumnProps) {
   const {
     register,
     handleSubmit,
     setValue,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof columnSchema>>({
     resolver: zodResolver(columnSchema),
     defaultValues: { columnName: "", columnType: "Text" },
   });
 
-  const onSubmit = (data: z.infer<typeof columnSchema>) => {
-    console.log(data);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const onSubmit = async (data: z.infer<typeof columnSchema>) => {
+    const result = await createColumn(
+      tableId,
+      data.columnName,
+      data.columnType
+    );
+
+    if (result.success) {
+      toast.success(result.data.message || "Column added successfully");
+
+      setTable((prevTable) => {
+        if (!prevTable) return prevTable;
+
+        return {
+          ...prevTable,
+          columns: [
+            ...prevTable.columns,
+            {
+              _id: result.data.data._id,
+              columnName: data.columnName,
+              columnType: data.columnType,
+              isDynamic: true,
+              rows: [],
+            },
+          ],
+        };
+      });
+
+      reset();
+      setIsOpen(false);
+    } else {
+      toast.error("Couldn't add column. Try again later.");
+    }
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="rounded-md w-fit cursor-pointer" size="sm">
           {triggerLabel}
@@ -68,9 +107,7 @@ export function AddColumn({ triggerLabel, tableId }: AddColumnProps) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-          {/* Column Name */}
           <div className="flex flex-col gap-2">
             <Label htmlFor="columnName">Column Name</Label>
             <Input
@@ -83,7 +120,6 @@ export function AddColumn({ triggerLabel, tableId }: AddColumnProps) {
             )}
           </div>
 
-          {/* Data Type Selection */}
           <div className="flex flex-col gap-2">
             <Label htmlFor="columnType">
               Data Type
@@ -107,9 +143,10 @@ export function AddColumn({ triggerLabel, tableId }: AddColumnProps) {
             </Select>
           </div>
 
-          {/* Submit Button */}
           <DialogFooter>
-            <Button type="submit">Add Column</Button>
+            <Button type="submit" size="full" disabled={isSubmitting}>
+              {isSubmitting ? <BtnLoader /> : "Save changes"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

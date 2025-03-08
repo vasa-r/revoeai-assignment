@@ -71,7 +71,11 @@ const SingleTable = () => {
         />
       </div>
       <Card className="rounded-md p-2 flex-row items-center justify-between">
-        <AddColumn triggerLabel="Add Column" tableId={table!.tableId} />
+        <AddColumn
+          triggerLabel="Add Column"
+          tableId={table!.tableId}
+          setTable={setTable}
+        />
         {table?.googleSheetId ? (
           <Card className="p-1.5 flex-row items-center gap-1.5 rounded-md">
             <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
@@ -88,7 +92,7 @@ const SingleTable = () => {
         )}
       </Card>
       <Card className="flex-1 overflow-hidden py-2 px-[1%]">
-        <SheetTable columns={table?.columns || []} />
+        <SheetTable columns={table?.columns || []} setTable={setTable} />
       </Card>
     </div>
   );

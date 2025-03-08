@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TooltipWrapper from "../tooltip-wrapper";
 import { Dispatch, SetStateAction, useState } from "react";
-import { Table } from "@/types/types";
+import { TableData } from "@/types/types";
 import { updateTable } from "@/api/table";
 import toast from "react-hot-toast";
 import BtnLoader from "../loader";
@@ -25,7 +25,7 @@ import BtnLoader from "../loader";
 interface ConnectSheet {
   triggerLabel: React.ReactNode | string;
   tableId: string;
-  setTable: Dispatch<SetStateAction<Table | null>>;
+  setTable: Dispatch<SetStateAction<TableData | null>>;
 }
 
 const sheetSchema = z.object({

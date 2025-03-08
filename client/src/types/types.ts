@@ -5,6 +5,7 @@ export interface TableData {
   tableName: string;
   googleSheetId: string;
   columns: Column[];
+  _id: string;
 }
 
 export interface Column {
@@ -12,6 +13,7 @@ export interface Column {
   columnType: "Text" | "Date";
   isDynamic: boolean;
   rows: Row[];
+  _id: string;
 }
 
 export interface Row {

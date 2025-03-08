@@ -7,8 +7,6 @@ export interface Column {
 }
 
 const createTable = async (tableName: string, columns: Column[]) => {
-  console.log("tableName", tableName);
-  console.log("columns", columns);
   try {
     const response = await apiClient.post("/table", {
       tableName,

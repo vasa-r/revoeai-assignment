@@ -19,13 +19,13 @@ import BtnLoader from "../loader";
 import toast from "react-hot-toast";
 import { updateTable } from "@/api/table";
 import { Dispatch, SetStateAction, useState } from "react";
-import { Table } from "@/types/types";
+import { TableData } from "@/types/types";
 
 interface EditTableDialog {
   triggerLabel: React.ReactNode | string;
   tableName: string;
   tableId: string;
-  setTable: Dispatch<SetStateAction<Table | null>>;
+  setTable: Dispatch<SetStateAction<TableData | null>>;
 }
 
 const tableSchema = z.object({

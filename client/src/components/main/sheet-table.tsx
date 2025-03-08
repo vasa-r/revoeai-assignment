@@ -9,25 +9,92 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Column } from "@/types/types";
+import { Column, TableData } from "@/types/types";
+import { useEffect, useState } from "react";
+import { Input } from "../ui/input";
+import { Calendar } from "../ui/calendar";
+import { format } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import getFormattedData from "@/hooks/column-formatter";
+import { updateColumnValues } from "@/api/column";
+import toast from "react-hot-toast";
 
 interface SheetTableProps {
   columns: Column[];
+  setTable: React.Dispatch<React.SetStateAction<TableData | null>>;
 }
 
-export function SheetTable({ columns }: SheetTableProps) {
+export function SheetTable({ columns, setTable }: SheetTableProps) {
   const maxRows = Math.max(...columns.map((col) => col.rows.length));
+
+  const [editedData, setEditedData] = useState<{ [key: string]: string }>({});
+
+  const handleInputChange = (
+    colId: string,
+    rowIndex: number,
+    value: string
+  ) => {
+    setEditedData((prev) => ({
+      ...prev,
+      [`${colId}-${rowIndex}`]: value,
+    }));
+  };
+
+  const handleSave = async () => {
+    const formattedData = getFormattedData(editedData);
+
+    const response = await updateColumnValues(formattedData);
+
+    console.log(response.data.data);
+
+    if (response.success) {
+      toast.success("Table data saved successfully!");
+      setEditedData({});
+
+      setTable((prevTable) => {
+        if (!prevTable) return prevTable;
+
+        const updatedColumns = prevTable.columns.map((col) => {
+          const newRows = col.rows.map((row, rowIndex) => ({
+            ...row,
+            value:
+              editedData[`${col._id}-${rowIndex}`] !== undefined
+                ? editedData[`${col._id}-${rowIndex}`]
+                : row.value,
+          }));
+
+          return { ...col, rows: newRows };
+        });
+
+        return { ...prevTable, columns: updatedColumns };
+      });
+    } else {
+      toast.error("Failed to save table data");
+    }
+  };
+
+  useEffect(() => console.log(editedData), [editedData]);
+
   return (
-    <div className="w-full overflow-auto">
+    <div className="w-full overflow-auto flex flex-col gap-2">
+      <Button className="w-fit self-end" onClick={handleSave}>
+        Save
+      </Button>
       <Table className="w-full border-collapse border border-border rounded-md min-w-max">
         <TableHeader className="border-b border-border">
           <TableRow>
             <TableHead className="border-r border-border px-2 w-[60px] text-center">
               SI.No
             </TableHead>
-            {columns.map((col) => (
+            {columns.map((col, idx) => (
               <TableHead
-                key={col.columnName}
+                key={`${col._id + idx}`}
                 className="border-r border-border px-2 text-left min-w-[150px] max-w-[260px]"
               >
                 {col.columnName}
@@ -46,10 +113,80 @@ export function SheetTable({ columns }: SheetTableProps) {
 
                 {columns.map((col, idx) => (
                   <TableCell
-                    key={`${col.columnName}-${idx}`}
+                    key={`${col._id + idx}`}
                     className="border-r border-border px-2 text-left"
                   >
-                    {col.rows[rowIndex]?.value ?? "-"}
+                    {col.isDynamic ? (
+                      col.columnType === "Text" ? (
+                        <Input
+                          value={
+                            editedData[`${col._id}-${rowIndex}`] !== undefined
+                              ? editedData[`${col._id}-${rowIndex}`]
+                              : col.rows[rowIndex]?.value === "__EMPTY__"
+                              ? ""
+                              : col.rows[rowIndex]?.value || ""
+                          }
+                          onChange={(e) =>
+                            handleInputChange(col._id, rowIndex, e.target.value)
+                          }
+                          placeholder="Enter text"
+                        />
+                      ) : col.columnType === "Date" ? (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full flex justify-between px-3 py-2 text-sm font-medium"
+                            >
+                              {editedData[`${col._id}-${rowIndex}`]
+                                ? format(
+                                    new Date(
+                                      editedData[`${col._id}-${rowIndex}`]
+                                    ),
+                                    "yyyy-MM-dd"
+                                  )
+                                : col.rows[rowIndex]?.value &&
+                                  col.rows[rowIndex]?.value !== "__EMPTY__"
+                                ? format(
+                                    new Date(col.rows[rowIndex]?.value),
+                                    "yyyy-MM-dd"
+                                  )
+                                : "Pick a date"}
+                              <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={
+                                editedData[`${col._id}-${rowIndex}`]
+                                  ? new Date(
+                                      editedData[`${col._id}-${rowIndex}`]
+                                    )
+                                  : col.rows[rowIndex]?.value &&
+                                    col.rows[rowIndex]?.value !== "__EMPTY__"
+                                  ? new Date(col.rows[rowIndex]?.value)
+                                  : undefined
+                              }
+                              onSelect={(date) =>
+                                handleInputChange(
+                                  col._id,
+                                  rowIndex,
+                                  date ? format(date, "yyyy-MM-dd") : ""
+                                )
+                              }
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      ) : (
+                        "-"
+                      )
+                    ) : col.rows[rowIndex]?.value &&
+                      col.rows[rowIndex]?.value !== "__EMPTY__" ? (
+                      col.rows[rowIndex]?.value
+                    ) : (
+                      "-"
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
