@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createTable,
   deleteTable,
+  readTable,
   updateTable,
 } from "../controllers/table-controller";
 import {
@@ -11,9 +12,11 @@ import {
 
 const tableRouter = Router();
 
+tableRouter.get("/:tableId", readTable);
+
 tableRouter.post("/", validateNewTable, createTable);
 
-tableRouter.put("/", validateTableUpdate, updateTable);
+tableRouter.patch("/:tableId", validateTableUpdate, updateTable);
 
 tableRouter.delete("/:tableId", deleteTable);
 

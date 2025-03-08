@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { statusCode } from "../types";
+import { statusCode } from "../types/type";
 
 export const validateNewColumn = (
   req: Request,

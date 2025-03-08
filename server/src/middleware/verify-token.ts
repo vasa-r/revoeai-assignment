@@ -32,8 +32,6 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
       process.env.JWT_SECRET as string
     ) as JwtPayloadWithUserId;
 
-    console.log(decoded);
-
     if (decoded.userId) {
       req.userId = decoded.userId;
       next();

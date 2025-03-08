@@ -6,6 +6,8 @@ export interface IColumn extends Document {
   isDynamic: boolean; // isDynamic means -> isDynamic ? column is added when table is created : column is added in table view dashboard
   rows: { value: string | Date; createdAt: Date }[];
   tableId: Schema.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const rowSchema = new Schema(
@@ -36,6 +38,14 @@ const columnSchema = new Schema<IColumn>({
     required: true,
   },
   rows: [rowSchema],
+  createdAt: {
+    type: Date,
+    required: true,
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+  },
 });
 
 const Column =

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { statusCode } from "../types";
+import { statusCode } from "../types/type";
 
 export const validateNewTable = (
   req: Request,

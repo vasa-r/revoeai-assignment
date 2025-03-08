@@ -25,8 +25,22 @@ const comparePassword = async (password: string, hashedPassword: string) => {
   }
 };
 
-const generateToken = (id: string, userName: string, email: string) => {
-  return jwt.sign({ id, userName, email }, process.env.JWT_SECRET as string);
+const generateToken = (userId: string) => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET as string);
 };
 
-export { generateHashedPassword, comparePassword, generateToken };
+const extractSheetId = (input: string) => {
+  if (/^[a-zA-Z0-9-_]{30,}$/.test(input)) {
+    return input;
+  }
+
+  const match = input.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  return match ? match[1] : null;
+};
+
+export {
+  generateHashedPassword,
+  comparePassword,
+  generateToken,
+  extractSheetId,
+};

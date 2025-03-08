@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Column from "../models/column-model";
 import Table from "../models/table-model";
-import { statusCode } from "../types";
+import { statusCode } from "../types/type";
 
 export const createColumn = async (req: Request, res: Response) => {
   try {

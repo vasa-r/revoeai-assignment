@@ -1,12 +1,18 @@
 import { Request, Response } from "express";
 import Table from "../models/table-model";
 import Column, { IColumn } from "../models/column-model";
-import { statusCode, tableUpdateData } from "../types";
+import { statusCode, tableUpdateData } from "../types/type";
+import mongoose from "mongoose";
+
+import { extractSheetId } from "../lib/utils";
+import { checkSheetAccess } from "../config/google";
 
 export const createTable = async (req: Request, res: Response) => {
   try {
     const { tableName, columns } = req.body;
-    const { userId } = req;
+    console.log(req);
+    const userId = req.userId;
+    console.log("userId", userId);
 
     const table = await Table.create({ tableName, userId });
 
@@ -48,7 +54,37 @@ export const updateTable = async (req: Request, res: Response) => {
     const updateData: Partial<tableUpdateData> = {};
 
     if (tableName !== undefined) updateData.tableName = tableName;
-    if (googleSheetId !== undefined) updateData.googleSheetId = googleSheetId;
+
+    if (googleSheetId !== undefined) {
+      try {
+        const extractedId = extractSheetId(googleSheetId);
+
+        if (!extractedId) {
+          res.status(statusCode.FORBIDDEN).json({
+            success: false,
+            message: "Not a valid spreadsheet ID",
+          });
+          return;
+        }
+        const response = await checkSheetAccess(extractedId!);
+
+        if (!response.success) {
+          res.status(statusCode.FORBIDDEN).json({
+            success: false,
+            message: response.message || "No access to sheet",
+          });
+          return;
+        }
+
+        updateData.googleSheetId = extractedId;
+      } catch (error) {
+        res.status(statusCode.SERVER_ERROR).json({
+          success: false,
+          message: "An unexpected error occurred while checking sheet access.",
+        });
+        return;
+      }
+    }
 
     const updatedTable = await Table.findByIdAndUpdate(
       tableId,
@@ -67,7 +103,10 @@ export const updateTable = async (req: Request, res: Response) => {
     res.status(statusCode.OK).json({
       success: true,
       message: "Table updated successfully",
-      data: updatedTable,
+      data: {
+        tableName: updatedTable.tableName,
+        googleSheetId: updatedTable.googleSheetId,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -104,6 +143,72 @@ export const deleteTable = async (req: Request, res: Response) => {
     res.status(statusCode.SERVER_ERROR).json({
       success: false,
       message: "Something went wrong while deleting the table.",
+    });
+    return;
+  }
+};
+
+// it is created juts for testing purpose before i integrate sheet data with table
+export const readTable = async (req: Request, res: Response) => {
+  try {
+    const { tableId } = req.params;
+
+    if (!tableId) {
+      res.status(statusCode.BAD_REQUEST).json({
+        success: false,
+        message: "Table ID is required",
+      });
+      return;
+    }
+
+    const tableData = await Table.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(tableId) },
+      },
+      {
+        $lookup: {
+          from: "columns",
+          localField: "_id",
+          foreignField: "tableId",
+          as: "columns",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          tableName: 1,
+          googleSheetId: 1,
+          createdAt: 1,
+          columns: {
+            _id: 1,
+            columnName: 1,
+            columnType: 1,
+            isDynamic: 1,
+            rows: 1,
+            createdAt: 1,
+          },
+        },
+      },
+    ]);
+
+    if (!tableData.length) {
+      res.status(statusCode.NOT_FOUND).json({
+        success: false,
+        message: "Table not found",
+      });
+      return;
+    }
+
+    res.status(statusCode.OK).json({
+      success: true,
+      message: "Table data fetched",
+      data: tableData[0],
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(statusCode.SERVER_ERROR).json({
+      success: false,
+      message: "Something went wrong while reading the table.",
     });
     return;
   }

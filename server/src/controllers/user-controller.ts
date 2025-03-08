@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/user-model";
-import { statusCode } from "../types";
+import { statusCode } from "../types/type";
 import {
   comparePassword,
   generateHashedPassword,
@@ -67,11 +67,14 @@ export const authenticateUser = async (req: Request, res: Response) => {
       return;
     }
 
-    const token = generateToken(user._id, user.userName, user.email);
+    const token = generateToken(user._id);
 
     res.status(statusCode.ACCEPTED).json({
       success: true,
-      data: user,
+      userData: {
+        userName: user.userName,
+        email: user.email,
+      },
       message: `Welcome ${user.userName}`,
       token,
     });

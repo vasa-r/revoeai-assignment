@@ -1,3 +1,4 @@
 .env
 node_modules
 dist
+src/config/sheetsync-453021-5507e98771e5.json
