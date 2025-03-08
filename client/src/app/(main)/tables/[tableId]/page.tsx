@@ -23,8 +23,10 @@ const SingleTable = () => {
   const [table, setTable] = useState<TableData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  // const [isConnected, setIsConnected] = useState(false);
 
-  useWebSocket(setTable);
+  const isSheetConnected = !!table?.googleSheetId;
+  useWebSocket(setTable, tableId as string, isSheetConnected);
 
   useEffect(() => {
     if (!tableId) router.push("/tables");
@@ -32,8 +34,10 @@ const SingleTable = () => {
     const fetchTable = async () => {
       setLoading(true);
       const response = await getTableData(tableId as string);
+
       if (response.success) {
         setTable(response.data);
+        // setIsConnected(!!response.data.googleSheetId);
       } else {
         setError(response.data);
       }

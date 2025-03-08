@@ -1,5 +1,7 @@
 import WebSocket from "ws";
 import fetchGoogleSheetData from "../services/google-services";
+import { getTableById } from "../lib/get-table";
+import { verifyUser } from "../lib/utils";
 
 interface Client {
   ws: WebSocket;
@@ -15,12 +17,40 @@ export const setupWebSocketServer = (server: any) => {
   wss.on("connection", async (ws, req) => {
     console.log("WebSocket connection established");
 
-    const userId = "vasa";
-    const spreadsheetId = "1WWMRMN10yWsdeiKtoqLG7CtCw0FRcHEeWj71WH5aXkE";
+    const url = new URL(req.url!, `http://${req.headers.host}`);
+    const token = url.searchParams.get("token");
+    const tableId = url.searchParams.get("tableId");
 
-    clients[userId] = { ws, spreadsheetId };
+    if (!token || !tableId) {
+      ws.close();
+      console.log("Missing token or tableId in the URL");
+      return;
+    }
+
+    let userId;
+    try {
+      const decoded = verifyUser(token);
+      userId = decoded.userId;
+    } catch (error) {
+      ws.close();
+      console.error("Invalid or expired token:", error);
+      return;
+    }
+
+    console.log(
+      `WebSocket connection established for UserId: ${userId}, TableId: ${tableId}`
+    );
 
     try {
+      const table = await getTableById(tableId);
+      if (!table) {
+        ws.close();
+        console.log(`No table found with tableId: ${tableId}`);
+        return;
+      }
+
+      const spreadsheetId = table.googleSheetId;
+      clients[userId] = { ws, spreadsheetId };
       const { data } = await fetchGoogleSheetData(spreadsheetId);
       clients[userId].lastKnownData = data;
     } catch (error) {

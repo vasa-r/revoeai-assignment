@@ -65,6 +65,7 @@ const AddTableModal = ({ triggerLabel }: { triggerLabel: string }) => {
         if (response.success) {
           toast.success(response.data.message || "Table created successfully!");
           setOpen(false);
+
           addTableStat(response.data.data);
         } else {
           toast.error(

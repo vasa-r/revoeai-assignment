@@ -45,6 +45,7 @@ export const StatsProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     try {
       const response = await getStatData();
+
       if (response.success && response.data?.success) {
         setStats({
           totalTables: response.data.totalTables,
@@ -68,7 +69,8 @@ export const StatsProvider = ({ children }: { children: React.ReactNode }) => {
       totalTables: prev.totalTables + 1,
       totalColumns: prev.totalColumns + newTable.columnCount,
       totalGoogleSheetsLinked:
-        prev.totalGoogleSheetsLinked + (newTable.sheetConnected ? 1 : 0),
+        prev.totalGoogleSheetsLinked +
+        (newTable.sheetConnected == "No" ? 0 : 1),
       tableStats: [...prev.tableStats, newTable],
     }));
   };
@@ -86,7 +88,8 @@ export const StatsProvider = ({ children }: { children: React.ReactNode }) => {
         totalTables: prev.totalTables - 1,
         totalColumns: prev.totalColumns - (removedTable?.columnCount || 0),
         totalGoogleSheetsLinked:
-          prev.totalGoogleSheetsLinked - (removedTable?.sheetConnected ? 1 : 0),
+          prev.totalGoogleSheetsLinked -
+          (removedTable?.sheetConnected == "No" ? 0 : 1),
         tableStats: updatedTables,
       };
     });

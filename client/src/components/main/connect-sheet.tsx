@@ -57,8 +57,7 @@ export function ConnectSheet({
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const serviceAccountEmail =
-    "sheetsync-api-service@sheetsync-453021.iam.gserviceaccount.com";
+  const serviceAccountEmail = "sheet-947@sheets-453116.iam.gserviceaccount.com";
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(serviceAccountEmail);

@@ -1,5 +1,7 @@
 // "use client";
 
+import PageLoader from "@/components/page-loader";
+
 // import { motion } from "framer-motion";
 
 // const Loading = () => {
@@ -17,5 +19,5 @@
 // export default Loading;
 
 export default function Loading() {
-  return "loading";
+  return <PageLoader />;
 }

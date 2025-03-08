@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+interface TokenPayload {
+  userId: string;
+}
+
 const generateHashedPassword = async (password: string) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,6 +31,18 @@ const comparePassword = async (password: string, hashedPassword: string) => {
 
 const generateToken = (userId: string) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET as string);
+};
+
+export const verifyUser = (token: string): TokenPayload => {
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as TokenPayload;
+    return decoded;
+  } catch (error) {
+    throw new Error("Invalid or expired token");
+  }
 };
 
 const extractSheetId = (input: string) => {

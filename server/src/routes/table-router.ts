@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createTable,
   deleteTable,
+  getTableStat,
   readTable,
   updateTable,
 } from "../controllers/table-controller";
@@ -13,6 +14,8 @@ import {
 const tableRouter = Router();
 
 tableRouter.get("/:tableId", readTable);
+
+tableRouter.get("/", getTableStat);
 
 tableRouter.post("/", validateNewTable, createTable);
 

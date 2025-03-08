@@ -8,7 +8,9 @@ type IncomingRow = {
 const WS_URL = process.env.NEXT_PUBLIC_API_WS_URL!;
 
 export default function useWebSocket(
-  setData: React.Dispatch<React.SetStateAction<TableData | null>>
+  setData: React.Dispatch<React.SetStateAction<TableData | null>>,
+  tableId: string,
+  isSheetConnected: boolean
 ) {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [wsStatus, setWsStatus] = useState<"connected" | "disconnected">(
@@ -16,9 +18,22 @@ export default function useWebSocket(
   );
 
   useEffect(() => {
+    if (!isSheetConnected) {
+      return; // Do not connect WebSocket if sheet is not connected
+    }
+
     let reconnectTimeout: NodeJS.Timeout;
     const connectWebSocket = () => {
-      const socket = new WebSocket(WS_URL);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Token is missing in localStorage");
+        return;
+      }
+
+      const socketUrl = `${WS_URL}?token=${token}&tableId=${tableId}`;
+
+      const socket = new WebSocket(socketUrl);
       setWs(socket);
 
       socket.onopen = () => {
@@ -34,14 +49,25 @@ export default function useWebSocket(
             if (!prevTable) return prevTable;
 
             const newRows = incomingData.data;
+            if (newRows.length === 0) return prevTable;
 
-            const updatedColumns = prevTable.columns.map((column) => ({
-              ...column,
-              rows: newRows.map((row: IncomingRow) => ({
-                value: row[column.columnName] ?? "",
-                createdAt: new Date().toISOString(),
-              })),
-            }));
+            const fieldNames = Object.keys(newRows[0]);
+            const columnCount = Math.min(
+              fieldNames.length,
+              prevTable.columns.length
+            );
+
+            const updatedColumns = prevTable.columns.map((column, index) => {
+              if (index >= columnCount) return column;
+
+              return {
+                ...column,
+                rows: newRows.map((row: IncomingRow) => ({
+                  value: row[fieldNames[index]] ?? "",
+                  createdAt: new Date().toISOString(),
+                })),
+              };
+            });
 
             return {
               ...prevTable,
@@ -76,7 +102,7 @@ export default function useWebSocket(
       }
       clearTimeout(reconnectTimeout);
     };
-  }, []);
+  }, [isSheetConnected]);
 
   return { wsStatus };
 }

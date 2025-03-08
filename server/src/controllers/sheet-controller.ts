@@ -24,7 +24,6 @@ export const getTableDataWithSheet = async (req: Request, res: Response) => {
 export const getCompleteTableData = async (req: Request, res: Response) => {
   try {
     const { tableId } = req.params;
-    console.log(tableId);
     if (!tableId) {
       res.status(statusCode.BAD_REQUEST).json({
         success: false,

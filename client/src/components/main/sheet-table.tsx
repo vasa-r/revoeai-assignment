@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 
 import { Column, TableData } from "@/types/types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "../ui/input";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
@@ -48,38 +48,45 @@ export function SheetTable({ columns, setTable }: SheetTableProps) {
 
   const handleSave = async () => {
     const formattedData = getFormattedData(editedData);
-
     const response = await updateColumnValues(formattedData);
-
-    console.log(response.data.data);
 
     if (response.success) {
       toast.success("Table data saved successfully!");
-      setEditedData({});
 
       setTable((prevTable) => {
         if (!prevTable) return prevTable;
 
         const updatedColumns = prevTable.columns.map((col) => {
-          const newRows = col.rows.map((row, rowIndex) => ({
-            ...row,
-            value:
-              editedData[`${col._id}-${rowIndex}`] !== undefined
-                ? editedData[`${col._id}-${rowIndex}`]
-                : row.value,
-          }));
+          const updatedValues = response.data.data.find(
+            (newCol: Column) => newCol._id === col._id
+          )?.rows;
+
+          const newRows = [...col.rows];
+
+          updatedValues?.forEach(
+            (updatedRow: { value: string }, rowIndex: number) => {
+              if (!newRows[rowIndex]) {
+                newRows[rowIndex] = {
+                  value: updatedRow.value,
+                  createdAt: new Date().toISOString(),
+                };
+              } else if (newRows[rowIndex].value === "__EMPTY__") {
+                newRows[rowIndex].value = updatedRow.value;
+              }
+            }
+          );
 
           return { ...col, rows: newRows };
         });
 
         return { ...prevTable, columns: updatedColumns };
       });
+
+      setEditedData({});
     } else {
       toast.error("Failed to save table data");
     }
   };
-
-  useEffect(() => console.log(editedData), [editedData]);
 
   return (
     <div className="w-full overflow-auto flex flex-col gap-2">

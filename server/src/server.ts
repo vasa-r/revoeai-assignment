@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 8000;
 const wss = setupWebSocketServer(server);
 
 server.on("upgrade", (request, socket, head) => {
-  console.log("🔄 WebSocket upgrade request received");
+  console.log("WebSocket upgrade request received");
   wss.handleUpgrade(request, socket, head, (ws) => {
     wss.emit("connection", ws, request);
   });
@@ -46,5 +46,5 @@ app.use(errorHandler);
 
 server.listen(PORT, async () => {
   await connectDb();
-  console.log(`🚀 Server running on  PORT:${PORT}`);
+  console.log(`Server running on  PORT:${PORT}`);
 });

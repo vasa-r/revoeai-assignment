@@ -10,9 +10,8 @@ import { checkSheetAccess } from "../config/google";
 export const createTable = async (req: Request, res: Response) => {
   try {
     const { tableName, columns } = req.body;
-    console.log(req);
+
     const userId = req.userId;
-    console.log("userId", userId);
 
     const table = await Table.create({ tableName, userId });
 
@@ -35,6 +34,12 @@ export const createTable = async (req: Request, res: Response) => {
     res.status(statusCode.CREATED).json({
       success: true,
       message: "Table created successfully",
+      data: {
+        _id: table._id,
+        tableName: table.tableName,
+        columnCount: columnDocs.length,
+        sheetConnected: "No",
+      },
     });
   } catch (error) {
     console.error(error);
@@ -145,6 +150,53 @@ export const deleteTable = async (req: Request, res: Response) => {
       message: "Something went wrong while deleting the table.",
     });
     return;
+  }
+};
+
+export const getTableStat = async (req: Request, res: Response) => {
+  const { userId } = req;
+  try {
+    const totalTables = await Table.countDocuments({ userId });
+
+    const userTables = await Table.find({ userId }, "_id").lean();
+    const tableIds = userTables.map((table) => table._id);
+    const totalColumns = await Column.countDocuments({
+      tableId: { $in: tableIds },
+    });
+
+    const totalGoogleSheetsLinked = await Table.countDocuments({
+      userId,
+      googleSheetId: { $ne: "" },
+    });
+
+    const tables = await Table.find(
+      { userId },
+      "tableName googleSheetId _id"
+    ).lean();
+
+    const tableStats = await Promise.all(
+      tables.map(async (table) => {
+        const columnCount = await Column.countDocuments({ tableId: table._id });
+
+        return {
+          _id: table._id,
+          tableName: table.tableName,
+          columnCount,
+          sheetConnected: table.googleSheetId ? "Yes" : "No",
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      totalTables,
+      totalColumns,
+      totalGoogleSheetsLinked,
+      tableStats,
+    });
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
