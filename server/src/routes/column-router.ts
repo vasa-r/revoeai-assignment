@@ -10,7 +10,7 @@ const columnRouter = Router();
 
 columnRouter.post("/", validateNewColumn, createColumn);
 
-columnRouter.put("/", updateColumn);
+columnRouter.patch("/", updateColumn);
 
 columnRouter.delete("/:columnId", deleteColumn);
 

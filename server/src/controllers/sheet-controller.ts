@@ -24,6 +24,7 @@ export const getTableDataWithSheet = async (req: Request, res: Response) => {
 export const getCompleteTableData = async (req: Request, res: Response) => {
   try {
     const { tableId } = req.params;
+    console.log(tableId);
     if (!tableId) {
       res.status(statusCode.BAD_REQUEST).json({
         success: false,
@@ -68,6 +69,7 @@ export const getCompleteTableData = async (req: Request, res: Response) => {
       );
 
       return {
+        _id: col._id,
         columnName: col.columnName,
         columnType: col.columnType,
         isDynamic: false,
@@ -81,13 +83,16 @@ export const getCompleteTableData = async (req: Request, res: Response) => {
     });
 
     const formattedDynamicColumns = dynamicDbColumns.map((col) => ({
+      _id: col._id,
       columnName: col.columnName,
       columnType: col.columnType,
       isDynamic: true,
-      rows: col.rows.map((row: { value: any; createdAt: any }) => ({
-        value: row.value,
-        createdAt: row.createdAt,
-      })),
+      rows: col.rows
+        ? col.rows.map((row: { value: any; createdAt: any }) => ({
+            value: row.value,
+            createdAt: row.createdAt,
+          }))
+        : [],
     }));
 
     const allColumns = [...mergedNonDynamicColumns, ...formattedDynamicColumns];

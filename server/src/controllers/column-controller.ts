@@ -23,6 +23,8 @@ export const createColumn = async (req: Request, res: Response) => {
       tableId,
       isDynamic: true,
       rows: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
 
     res.status(statusCode.CREATED).json({
@@ -40,7 +42,44 @@ export const createColumn = async (req: Request, res: Response) => {
   }
 };
 
-export const updateColumn = (req: Request, res: Response) => {};
+export const updateColumn = async (req: Request, res: Response) => {
+  try {
+    const { updates } = req.body;
+    let updatedColumns = [];
+
+    for (const { columnId, rowIndex, value } of updates) {
+      const column = await Column.findById(columnId);
+
+      if (!column) {
+        res.status(404).json({ success: false, message: "Column not found" });
+        return;
+      }
+
+      const PLACEHOLDER_VALUE = "__EMPTY__";
+
+      while (column.rows.length <= rowIndex) {
+        column.rows.push({ value: PLACEHOLDER_VALUE });
+      }
+
+      column.rows[rowIndex].value = value ?? PLACEHOLDER_VALUE;
+
+      await column.save();
+
+      updatedColumns.push(column);
+    }
+
+    res.status(statusCode.OK).json({
+      success: true,
+      message: "Data saved successfully",
+      data: updatedColumns,
+    });
+  } catch (error) {
+    console.error("Error updating MongoDB:", error);
+    res
+      .status(statusCode.SERVER_ERROR)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
 
 export const deleteColumn = async (req: Request, res: Response) => {
   try {
