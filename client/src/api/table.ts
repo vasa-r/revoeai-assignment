@@ -30,4 +30,45 @@ const createTable = async (tableName: string, columns: Column[]) => {
   }
 };
 
-export { createTable };
+const getTableData = async (tableId: string) => {
+  try {
+    const response = await apiClient.get(`/sheet/${tableId}`);
+
+    return {
+      success: true,
+      data: response.data,
+      status: response.status,
+    };
+  } catch (error) {
+    const err = error as AxiosError;
+    return {
+      success: false,
+      data: err.response?.data || "An error occurred",
+      status: err.response?.status || 500,
+    };
+  }
+};
+
+const updateTable = async (
+  tableId: string,
+  updateData: { tableName?: string; googleSheetId?: string }
+) => {
+  try {
+    const response = await apiClient.patch(`/table/${tableId}`, updateData);
+
+    return {
+      success: true,
+      data: response.data,
+      status: response.status,
+    };
+  } catch (error) {
+    const err = error as AxiosError;
+    return {
+      success: false,
+      data: err.response?.data || "An error occurred",
+      status: err.response?.status || 500,
+    };
+  }
+};
+
+export { createTable, getTableData, updateTable };
