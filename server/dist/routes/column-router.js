@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const column_controller_1 = require("../controllers/column-controller");
+const validate_column_1 = require("../middleware/validate-column");
+const columnRouter = (0, express_1.Router)();
+columnRouter.post("/", validate_column_1.validateNewColumn, column_controller_1.createColumn);
+columnRouter.patch("/", column_controller_1.updateColumn);
+columnRouter.delete("/:columnId", column_controller_1.deleteColumn);
+exports.default = columnRouter;

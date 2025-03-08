@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.statusCode = void 0;
+var statusCode;
+(function (statusCode) {
+    statusCode[statusCode["OK"] = 200] = "OK";
+    statusCode[statusCode["CREATED"] = 201] = "CREATED";
+    statusCode[statusCode["ACCEPTED"] = 202] = "ACCEPTED";
+    statusCode[statusCode["NO_CONTENT"] = 204] = "NO_CONTENT";
+    statusCode[statusCode["BAD_REQUEST"] = 400] = "BAD_REQUEST";
+    statusCode[statusCode["UNAUTHORIZED"] = 401] = "UNAUTHORIZED";
+    statusCode[statusCode["FORBIDDEN"] = 403] = "FORBIDDEN";
+    statusCode[statusCode["NOT_FOUND"] = 404] = "NOT_FOUND";
+    statusCode[statusCode["METHOD_NOT_ALLOWED"] = 405] = "METHOD_NOT_ALLOWED";
+    statusCode[statusCode["NOT_ACCEPTABLE"] = 406] = "NOT_ACCEPTABLE";
+    statusCode[statusCode["CONFLICT"] = 409] = "CONFLICT";
+    statusCode[statusCode["SERVER_ERROR"] = 500] = "SERVER_ERROR";
+    statusCode[statusCode["NOT_IMPLEMENTED"] = 501] = "NOT_IMPLEMENTED";
+    statusCode[statusCode["BAD_GATEWAY"] = 502] = "BAD_GATEWAY";
+    statusCode[statusCode["UNAVAILABLE"] = 503] = "UNAVAILABLE";
+    statusCode[statusCode["TIMEOUT"] = 504] = "TIMEOUT";
+})(statusCode || (exports.statusCode = statusCode = {}));
