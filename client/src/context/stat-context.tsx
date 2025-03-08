@@ -21,7 +21,9 @@ interface StatsData {
 interface StatsContextType {
   stats: StatsData;
   loading: boolean;
-  refreshStats: () => void; // Function to refresh stats
+  refreshStats: () => void;
+  addTableStat: (newTable: TableStat) => void;
+  removeTableStat: (tableId: string) => void;
 }
 
 const StatsContext = createContext<StatsContextType | undefined>(undefined);
@@ -61,12 +63,43 @@ export const StatsProvider = ({ children }: { children: React.ReactNode }) => {
     fetchStats();
   };
 
+  const addTableStat = (newTable: TableStat) => {
+    setStats((prev) => ({
+      totalTables: prev.totalTables + 1,
+      totalColumns: prev.totalColumns + newTable.columnCount,
+      totalGoogleSheetsLinked:
+        prev.totalGoogleSheetsLinked + (newTable.sheetConnected ? 1 : 0),
+      tableStats: [...prev.tableStats, newTable],
+    }));
+  };
+
+  const removeTableStat = (tableId: string) => {
+    setStats((prev) => {
+      const updatedTables = prev.tableStats.filter(
+        (table) => table._id !== tableId
+      );
+      const removedTable = prev.tableStats.find(
+        (table) => table._id === tableId
+      );
+
+      return {
+        totalTables: prev.totalTables - 1,
+        totalColumns: prev.totalColumns - (removedTable?.columnCount || 0),
+        totalGoogleSheetsLinked:
+          prev.totalGoogleSheetsLinked - (removedTable?.sheetConnected ? 1 : 0),
+        tableStats: updatedTables,
+      };
+    });
+  };
+
   useEffect(() => {
     fetchStats();
   }, [user]);
 
   return (
-    <StatsContext.Provider value={{ stats, loading, refreshStats }}>
+    <StatsContext.Provider
+      value={{ stats, loading, refreshStats, addTableStat, removeTableStat }}
+    >
       {children}
     </StatsContext.Provider>
   );

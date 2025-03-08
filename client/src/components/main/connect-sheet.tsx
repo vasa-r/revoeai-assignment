@@ -21,8 +21,9 @@ import { TableData } from "@/types/types";
 import { updateTable } from "@/api/table";
 import toast from "react-hot-toast";
 import BtnLoader from "../loader";
+import { Copy, CheckCircle } from "lucide-react";
 
-interface ConnectSheet {
+interface ConnectSheetProps {
   triggerLabel: React.ReactNode | string;
   tableId: string;
   setTable: Dispatch<SetStateAction<TableData | null>>;
@@ -45,7 +46,7 @@ export function ConnectSheet({
   triggerLabel,
   tableId,
   setTable,
-}: ConnectSheet) {
+}: ConnectSheetProps) {
   const {
     register,
     handleSubmit,
@@ -54,6 +55,17 @@ export function ConnectSheet({
   } = useForm({ resolver: zodResolver(sheetSchema) });
 
   const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const serviceAccountEmail =
+    "sheetsync-api-service@sheetsync-453021.iam.gserviceaccount.com";
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(serviceAccountEmail);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success("Email copied! Now, share the sheet.");
+  };
 
   const onSubmit = async (data: z.infer<typeof sheetSchema>) => {
     try {
@@ -65,8 +77,6 @@ export function ConnectSheet({
       const response = await updateTable(tableId, {
         googleSheetId: data.googleSheetId,
       });
-
-      console.log(response.data);
 
       if (response.success) {
         const { data } = response.data;
@@ -87,6 +97,7 @@ export function ConnectSheet({
       reset();
     }
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <TooltipWrapper content="Integrate your Google Spreadsheet">
@@ -99,17 +110,50 @@ export function ConnectSheet({
 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Connect you Google Spreadsheet</DialogTitle>
+          <DialogTitle>Connect Your Google Spreadsheet</DialogTitle>
           <DialogDescription>
-            Connect your table to a Google Spreadsheet to enable real-time data
-            synchronization. Any updates made in the linked sheet will
-            automatically reflect in your table.
+            Follow these steps to link your table with a Google Spreadsheet for
+            real-time updates.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Step 1: Copy and Add Service Account Email */}
+        <div className="mb-4 p-3 border rounded-md">
+          <h3 className="text-md font-semibold">
+            Step 1: Share your Spreadsheet
+          </h3>
+          <p className="text-xs mt-1.5">
+            Copy the email below and add it as an <b>Editor</b> in your Google
+            Spreadsheet under the &quot;Share&quot; settings.
+          </p>
+          <div className="flex items-center space-x-2 mt-2">
+            <Input
+              id="link"
+              value={serviceAccountEmail}
+              readOnly
+              className=""
+            />
+            <Button onClick={copyToClipboard} size="sm">
+              {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Step 2: Paste Google Sheet ID */}
+        <div className="mb-4 p-3 border rounded-md">
+          <h3 className="text-md font-semibold">
+            Step 2: Link your Spreadsheet
+          </h3>
+          <p className="text-xs mt-1.5">
+            Paste the Google Sheet <b>link</b> or <b>ID</b> below and click
+            &quot;Save Changes&quot;.
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="googleSheetId" className="text-right">
-              Spreadsheet link or ID
+              Spreadsheet Link or ID
             </Label>
             <Input
               id="googleSheetId"
@@ -118,13 +162,15 @@ export function ConnectSheet({
               {...register("googleSheetId")}
             />
             {errors.googleSheetId && (
-              <p className="error">{errors.googleSheetId.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.googleSheetId.message}
+              </p>
             )}
           </div>
 
           <DialogFooter>
             <Button type="submit" size="full" disabled={isSubmitting}>
-              {isSubmitting ? <BtnLoader /> : "Save changes"}
+              {isSubmitting ? <BtnLoader /> : "Save Changes"}
             </Button>
           </DialogFooter>
         </form>

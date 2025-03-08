@@ -38,7 +38,7 @@ const AddTableModal = ({ triggerLabel }: { triggerLabel: string }) => {
     tableName?: string;
     columns?: string[];
   }>({});
-  const { refreshStats } = useStats();
+  const { addTableStat } = useStats();
 
   useEffect(() => {
     if (open) {
@@ -65,7 +65,7 @@ const AddTableModal = ({ triggerLabel }: { triggerLabel: string }) => {
         if (response.success) {
           toast.success(response.data.message || "Table created successfully!");
           setOpen(false);
-          refreshStats();
+          addTableStat(response.data.data);
         } else {
           toast.error(
             response.data.message || "Couldn't create table. Try again."

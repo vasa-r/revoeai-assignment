@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, LayoutDashboard, Table } from "lucide-react";
+import { LayoutDashboard, Table } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -27,11 +27,6 @@ const data = {
       title: "Tables",
       url: "/tables",
       icon: Table,
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
     },
   ],
 };

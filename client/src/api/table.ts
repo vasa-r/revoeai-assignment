@@ -88,4 +88,23 @@ const updateTable = async (
   }
 };
 
-export { createTable, getTableData, updateTable, getStatData };
+const deleteTable = async (tableId: string) => {
+  try {
+    const response = await apiClient.delete(`/table/${tableId}`);
+
+    return {
+      success: true,
+      data: response.data,
+      status: response.status,
+    };
+  } catch (error) {
+    const err = error as AxiosError;
+    return {
+      success: false,
+      data: err.response?.data || "An error occurred",
+      status: err.response?.status || 500,
+    };
+  }
+};
+
+export { createTable, getTableData, updateTable, getStatData, deleteTable };

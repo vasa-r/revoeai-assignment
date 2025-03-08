@@ -9,63 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { RoughNotation } from "react-rough-notation";
-import { useSidebar } from "../ui/sidebar";
 import { DeleteDialog } from "./delete-dialog";
-import { EditTableDialog } from "./edit-table";
+import { TableStat } from "@/context/stat-context";
 
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-];
-
-export function TableList() {
-  const { state } = useSidebar();
+export function TableList({ tables }: { tables: TableStat[] }) {
   return (
-    <Table width={500}>
-      <TableCaption>A list of your recent created tables.</TableCaption>
+    <Table>
+      <TableCaption>A list of your recently created tables.</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-1/7">SI.No</TableHead>
@@ -79,42 +32,47 @@ export function TableList() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice, idx) => (
-          <TableRow key={invoice.invoice} className="font-medium">
-            <TableCell className="w-1/7">{idx + 1}</TableCell>
-            <TableCell className="w-1/7">{invoice.invoice}</TableCell>
-            <TableCell className="w-1/7 hidden sm:table-cell">
-              {invoice.paymentStatus}
-            </TableCell>
-            <TableCell className="w-1/7 hidden sm:table-cell">
-              {invoice.paymentMethod}
-            </TableCell>
-            <TableCell className=" text-center flex gap-4 justify-center items-center">
-              <button className="text-blue-500 hover:text-blue-700">
-                <EditTableDialog triggerLabel={<Edit size={18} />} />
-              </button>
-              <button className="text-red-500 hover:text-red-700">
-                <DeleteDialog
-                  triggerLabel={<Trash2 size={18} />}
-                  description="your table with all the associated columns with it"
-                />
-              </button>
-            </TableCell>
-            <TableCell className="w-1/7 text-right">
-              <RoughNotation
-                type="underline"
-                animate
-                show
-                color="#7f22fe"
-                animationDuration={1000}
-                padding={0}
-                key={state}
-              >
-                <Link href={"#"}>View</Link>
-              </RoughNotation>
+        {tables.length > 0 ? (
+          tables.map((table, idx) => (
+            <TableRow key={table._id} className="font-medium">
+              <TableCell className="w-1/7">{idx + 1}</TableCell>
+              <TableCell className="w-1/7">{table.tableName}</TableCell>
+              <TableCell className="w-1/7 hidden sm:table-cell">
+                {table.columnCount}
+              </TableCell>
+              <TableCell className="w-1/7 hidden sm:table-cell">
+                {table.sheetConnected}
+              </TableCell>
+              <TableCell className="text-center flex gap-4 justify-center items-center">
+                <button className="text-red-500 hover:text-red-700">
+                  <DeleteDialog
+                    triggerLabel={<Trash2 size={18} />}
+                    description={`your table ${table.tableName} with all the associated columns with it`}
+                    tableId={table._id}
+                  />
+                </button>
+              </TableCell>
+              <TableCell className="w-1/7 text-right">
+                <RoughNotation
+                  type="underline"
+                  animate
+                  show
+                  color="#7f22fe"
+                  animationDuration={1000}
+                  padding={0}
+                >
+                  <Link href={`/tables/${table._id}`}>View</Link>
+                </RoughNotation>
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={6} className="text-center py-4">
+              No tables found.
             </TableCell>
           </TableRow>
-        ))}
+        )}
       </TableBody>
     </Table>
   );
