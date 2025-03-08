@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/auth-context";
+import { StatsProvider } from "@/context/stat-context";
 
 const poppinsFont = Poppins({
   variable: "--font-poppins",
@@ -44,7 +45,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <StatsProvider>{children}</StatsProvider>
+          </AuthProvider>
           <Toaster position="top-right" />
         </ThemeProvider>
       </body>

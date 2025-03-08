@@ -25,6 +25,7 @@ import TooltipWrapper from "./tooltip-wrapper";
 import toast from "react-hot-toast";
 import { Column, createTable } from "@/api/table";
 import BtnLoader from "./loader";
+import { useStats } from "@/context/stat-context";
 
 const AddTableModal = ({ triggerLabel }: { triggerLabel: string }) => {
   const [loading, setLoading] = useState(false);
@@ -37,6 +38,7 @@ const AddTableModal = ({ triggerLabel }: { triggerLabel: string }) => {
     tableName?: string;
     columns?: string[];
   }>({});
+  const { refreshStats } = useStats();
 
   useEffect(() => {
     if (open) {
@@ -63,6 +65,7 @@ const AddTableModal = ({ triggerLabel }: { triggerLabel: string }) => {
         if (response.success) {
           toast.success(response.data.message || "Table created successfully!");
           setOpen(false);
+          refreshStats();
         } else {
           toast.error(
             response.data.message || "Couldn't create table. Try again."
